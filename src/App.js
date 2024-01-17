@@ -31,6 +31,12 @@ function reducer(state, action) {
       return { ...state, balance: 500, isActive: false };
     case 'deposit':
       return { ...state, balance: state.balance + 150 };
+    case 'withdraw':
+      return {
+        ...state,
+        balance: state.balance >= 50 ? state.balance - 50 : 0,
+      };
+
     default:
       return alert('il y a un probleme');
   }
@@ -67,7 +73,12 @@ export default function App() {
         </button>
       </p>
       <p>
-        <button onClick={() => {}} disabled={isActive}>
+        <button
+          onClick={() => {
+            dispatch({ type: 'withdraw' });
+          }}
+          disabled={isActive}
+        >
           Withdraw 50
         </button>
       </p>
