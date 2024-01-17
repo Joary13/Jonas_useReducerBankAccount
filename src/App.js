@@ -29,8 +29,10 @@ function reducer(state, action) {
   switch (action.type) {
     case 'open':
       return { ...state, balance: 500, isActive: false };
+    case 'deposit':
+      return { ...state, balance: state.balance + 150 };
     default:
-      return { ...state };
+      return alert('il y a un probleme');
   }
 }
 export default function App() {
@@ -55,7 +57,12 @@ export default function App() {
         </button>
       </p>
       <p>
-        <button onClick={() => {}} disabled={isActive}>
+        <button
+          onClick={() => {
+            dispatch({ type: 'deposit' });
+          }}
+          disabled={isActive}
+        >
           Deposit 150
         </button>
       </p>
