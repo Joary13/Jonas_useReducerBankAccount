@@ -22,35 +22,43 @@ INSTRUCTIONS / CONSIDERATIONS:
 const initialState = {
   balance: 0,
   loan: 0,
-  isActive: true,
+  isActive: false,
 };
 
 function reducer(state, action) {
+  if (!state.isActive && action.type !== 'open') return state;
   switch (action.type) {
     case 'open':
-      return { ...state, balance: 500, isActive: false };
+      return { ...state, balance: 500, isActive: true };
     case 'deposit':
-      return { ...state, balance: state.balance + 150 };
+      return { ...state, balance: state.balance + action.payload };
     case 'withdraw':
       return {
         ...state,
-        balance: state.balance >= 50 ? state.balance - 50 : 0,
+        balance: state.balance >= 50 ? state.balance - action.payload : 0,
       };
     case 'loan':
+      if (state.loan > 0) return state;
       return {
         ...state,
-        loan: state.loan > 0 ? state.loan : 5000,
-        balance: state.loan === 0 ? state.balance + 5000 : state.balance,
+        loan: action.payload,
+        balance: state.balance + action.payload,
       };
     case 'payLoan':
+      if (state.loan > state.balance) return state;
       return {
         ...state,
-        loan: state.balance >= 5000 ? 0 : state.loan,
-        balance: state.balance >= 5000 ? state.balance - 5000 : state.balance,
+        loan: 0,
+        balance: state.balance - state.loan,
+      };
+    case 'close':
+      if (state.balance !== 0 || state.loan !== 0) return state;
+      return {
+        ...initialState,
       };
 
     default:
-      return alert('il y a un probleme');
+      throw new Error('unknown');
   }
 }
 export default function App() {
@@ -65,21 +73,16 @@ export default function App() {
       <p>Loan: {loan}</p>
 
       <p>
-        <button
-          onClick={() => {
-            dispatch({ type: 'open' });
-          }}
-          disabled={!isActive}
-        >
+        <button onClick={() => dispatch({ type: 'open' })} disabled={isActive}>
           Open account
         </button>
       </p>
       <p>
         <button
           onClick={() => {
-            dispatch({ type: 'deposit' });
+            dispatch({ type: 'deposit', payload: 150 });
           }}
-          disabled={isActive}
+          disabled={!isActive}
         >
           Deposit 150
         </button>
@@ -87,9 +90,9 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            dispatch({ type: 'withdraw' });
+            dispatch({ type: 'withdraw', payload: 50 });
           }}
-          disabled={isActive}
+          disabled={!isActive}
         >
           Withdraw 50
         </button>
@@ -97,9 +100,9 @@ export default function App() {
       <p>
         <button
           onClick={() => {
-            dispatch({ type: 'loan' });
+            dispatch({ type: 'loan', payload: 5000 });
           }}
-          disabled={isActive}
+          disabled={!isActive}
         >
           Request a loan of 5000
         </button>
@@ -107,13 +110,18 @@ export default function App() {
       <p>
         <button
           onClick={() => dispatch({ type: 'payLoan' })}
-          disabled={isActive}
+          disabled={!isActive}
         >
           Pay loan
         </button>
       </p>
       <p>
-        <button onClick={() => {}} disabled={isActive}>
+        <button
+          onClick={() => {
+            dispatch({ type: 'close' });
+          }}
+          disabled={!isActive}
+        >
           Close account
         </button>
       </p>
